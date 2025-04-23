@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Room</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: #e9eff5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 500px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+            border-radius: 0;
+            box-shadow: none;
+        }
+        .chat-box {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column-reverse;
+            background: #f8fafc;
+        }
+        .msg {
+            background: #dbeafe;
+            margin: 6px 0;
+            padding: 10px 14px;
+            border-radius: 14px;
+            max-width: 80%;
+            font-size: 15px;
+        }
+        .msg strong {
+            font-weight: 600;
+        }
+        .timestamp {
+            font-size: 0.75em;
+            color: #666;
+            margin-top: 4px;
+            display: block;
+        }
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 10px;
+            background: #fff;
+            border-top: 1px solid #ccc;
+        }
+        input[type="text"] {
+            flex: 1;
+            min-width: 40%;
+            padding: 10px;
+            margin: 5px 5px 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        input[disabled] {
+            background-color: #f1f1f1;
+        }
+        button {
+            padding: 10px 16px;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #1e40af;
+        }
+
+        @media (max-width: 480px) {
+            .msg {
+                font-size: 14px;
+            }
+            input[type="text"], button {
+                font-size: 13px;
+                padding: 8px;
+            }
+            .chat-container {
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-box" id="chat-box"></div>
+
+        <form id="chat-form">
+            <input type="text" name="user" id="user" placeholder="Your name" required>
+            <input type="text" name="message" id="message" placeholder="Type a message" required>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <script>
+        const userInput = document.getElementById('user');
+
+        const storedUser = localStorage.getItem('chatUser');
+        if (storedUser) {
+            userInput.value = storedUser;
+            userInput.disabled = true;
+        }
+
+        async function fetchMessages() {
+            try {
+                const res = await fetch('/messages');
+                const messages = await res.json();
+                const box = document.getElementById('chat-box');
+                box.innerHTML = messages.map(m =>
+                    `<div class="msg"><strong>${m.user}</strong><br>${m.message}<span class="timestamp">${m.time}</span></div>`
+                ).join('');
+            } catch (err) {
+                console.error('Error fetching messages:', err);
+            }
+        }
+
+        document.getElementById('chat-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const user = userInput.value.trim();
+            const message = document.getElementById('message').value.trim();
+            if (!user || !message) return;
+
+            if (!localStorage.getItem('chatUser')) {
+                localStorage.setItem('chatUser', user);
+                userInput.disabled = true;
+            }
+
+            const formData = new FormData();
+            formData.append('user', user);
+            formData.append('message', message);
+
+            try {
+                await fetch('/send', {
+                    method: 'POST',
+                    body: formData
+                });
+                document.getElementById('message').value = '';
+                fetchMessages();
+            } catch (err) {
+                console.error('Error sending message:', err);
+            }
+        });
+
+        setInterval(fetchMessages, 1000);
+        fetchMessages();
+    </script>
+</body>
+</html>
