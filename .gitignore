@@ -1,37 +1,61 @@
-# Byte-compiled / optimized files
-__pycache__/
+# Byte-compiled / optimized / DLL files
+
+**pycache**/
 *.py[cod]
 *$py.class
 
+# Virtual environments
+
+venv/
+env/
+ENV/
+.venv/
+
 # Environment variables
+
 .env
 .env.local
 .env.*.local
 
-# Database
-database/chat.db
+# Database files
+
 database/*.db
+database/*.sqlite3
 database/*.db-journal
 database/*.db-wal
 
-# Uploads & temp
-static/uploads/
-*.log
-.DS_Store
+# Logs
 
-# IDE
+*.log
+
+# Uploads / user files
+
+static/uploads/
+
+# Python cache / testing
+
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE / Editors
+
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# Virtualenvs
-venv/
-env/
-ENV/
+# OS files
 
-# Dependencies
-.pytest_cache/
-
-# OS
+.DS_Store
 Thumbs.db
+
+# Build files
+
+dist/
+build/
+*.egg-info/
+
+# Jupyter Notebook
+
+.ipynb_checkpoints/
