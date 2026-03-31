@@ -1,1 +1,5 @@
-Flask
+flask>=3.0.0
+flask-socketio>=5.3.6
+eventlet>=0.33.3
+werkzeug>=3.0.0
+bleach==6.1.0
