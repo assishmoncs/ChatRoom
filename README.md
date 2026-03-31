@@ -11,4 +11,3 @@ No database server, no accounts, no cloud — just Python + a browser.
 | **Multi-room** | Configurable rooms via `.env` |
 | **Persistent history** | SQLite w/ pagination/infinite scroll |
 | **Live users** | Per-room online list |
-| **Typing
