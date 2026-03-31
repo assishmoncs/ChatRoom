@@ -1,4 +1,4 @@
-# 🚀 lanChat — Enhanced LAN Multi-room Chat (BlackboxAI Improved)
+# 🚀 ChatRoom — Enhanced LAN Multi-room Chat
 
 A clean, Discord-style local network chat built with **Flask + Flask-SocketIO + SQLite**.
 No database server, no accounts, no cloud — just Python + a browser.
