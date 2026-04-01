@@ -447,6 +447,7 @@ aside {
 .msg-group.mine {
   background: linear-gradient(135deg, rgba(29, 140, 255, 0.12), rgba(45, 212, 191, 0.07));
   border-color: rgba(29, 140, 255, 0.2);
+  border-left: 3px solid var(--accent);
 }
 
 @keyframes msgIn {

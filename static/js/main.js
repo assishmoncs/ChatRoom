@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function initTheme() {
   const saved = localStorage.getItem('lc_theme') || 'dark';
   document.documentElement.setAttribute('data-theme', saved);
-  themeToggle.textContent = saved === 'dark' ? '☀️' : '🌙';
+  setThemeToggleIcon(saved === 'dark' ? '☀️' : '🌙');
 }
 
 function checkAuth() {
@@ -518,7 +518,17 @@ function toggleTheme() {
   const next = cur === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem('lc_theme', next);
-  themeToggle.textContent = next === 'dark' ? '☀️' : '🌙';
+  setThemeToggleIcon(next === 'dark' ? '☀️' : '🌙');
+}
+
+function setThemeToggleIcon(icon) {
+  let iconEl = themeToggle.querySelector('[aria-hidden="true"]');
+  if (!iconEl) {
+    iconEl = document.createElement('span');
+    iconEl.setAttribute('aria-hidden', 'true');
+    themeToggle.appendChild(iconEl);
+  }
+  iconEl.textContent = icon;
 }
 
 function scrollToBottom(smooth = true) {
