@@ -1,168 +1,128 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <title>Chat Room</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            margin: 0;
-            font-family: 'Inter', sans-serif;
-            background: #e9eff5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .chat-container {
-            width: 100%;
-            max-width: 500px;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background: #ffffff;
-            border-radius: 0;
-            box-shadow: none;
-        }
-        .chat-box {
-            flex: 1;
-            padding: 10px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column-reverse;
-            background: #f8fafc;
-        }
-        .msg {
-            background: #dbeafe;
-            margin: 6px 0;
-            padding: 10px 14px;
-            border-radius: 14px;
-            max-width: 80%;
-            font-size: 15px;
-        }
-        .msg strong {
-            font-weight: 600;
-        }
-        .timestamp {
-            font-size: 0.75em;
-            color: #666;
-            margin-top: 4px;
-            display: block;
-        }
-        form {
-            display: flex;
-            flex-wrap: wrap;
-            padding: 10px;
-            background: #fff;
-            border-top: 1px solid #ccc;
-        }
-        input[type="text"] {
-            flex: 1;
-            min-width: 40%;
-            padding: 10px;
-            margin: 5px 5px 5px 0;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            font-size: 14px;
-        }
-        input[disabled] {
-            background-color: #f1f1f1;
-        }
-        button {
-            padding: 10px 16px;
-            background: #2563eb;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        button:hover {
-            background: #1e40af;
-        }
-
-        @media (max-width: 480px) {
-            .msg {
-                font-size: 14px;
-            }
-            input[type="text"], button {
-                font-size: 13px;
-                padding: 8px;
-            }
-            .chat-container {
-                border-radius: 0;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="lanChat - fast, real-time LAN messaging for your local network.">
+  <title>lanChat</title>
+  <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-box" id="chat-box"></div>
-
-        <form id="chat-form">
-            <input type="text" name="user" id="user" placeholder="Your name" required>
-            <input type="text" name="message" id="message" placeholder="Type a message" required>
-            <button type="submit">Send</button>
-        </form>
+<div id="name-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="modal-icon" aria-hidden="true">LC</span>
+      <h2 id="modal-title">Welcome to lanChat</h2>
     </div>
+    <p>Choose a display name to start chatting on your local network.</p>
+    <input id="name-input" type="text" placeholder="Your username..." maxlength="32" autocomplete="off" spellcheck="false">
+    <div id="name-error" class="error-text" role="alert"></div>
+    <button id="name-submit" class="primary-btn">Join Chat</button>
+  </div>
+</div>
 
-    <script>
-        const userInput = document.getElementById('user');
+<div id="mobile-sidebar-backdrop" class="mobile-sidebar-backdrop" hidden></div>
 
-        const storedUser = localStorage.getItem('chatUser');
-        if (storedUser) {
-            userInput.value = storedUser;
-            userInput.disabled = true;
-        }
+<div id="app-container">
+  <aside id="rooms-sidebar" aria-label="Channels">
+    <header class="sidebar-header">
+      <div class="brand-block">
+        <div class="brand-mark" aria-hidden="true">LC</div>
+        <div class="brand-copy">
+          <span class="logo">lanChat</span>
+          <p class="brand-subtitle">Private messaging for your local network</p>
+        </div>
+      </div>
+    </header>
+    <nav class="sidebar-nav" aria-label="Room list">
+      <div class="section-title">Channels</div>
+      <ul id="room-list" role="listbox">
+        {% for room in rooms %}
+        <li class="room-item {% if loop.first %}active{% endif %}"
+            data-room="{{ room }}"
+            role="option"
+            aria-selected="{% if loop.first %}true{% else %}false{% endif %}"
+            tabindex="0">
+          <span class="hash" aria-hidden="true">#</span>
+          <span class="room-name">{{ room }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </nav>
+    <footer class="sidebar-footer">
+      <div class="user-profile">
+        <div id="user-avatar" class="avatar" aria-hidden="true">?</div>
+        <div class="user-details">
+          <div id="user-name" class="username">Guest</div>
+          <div class="status online">Online now</div>
+        </div>
+        <button id="theme-toggle" class="icon-btn" title="Toggle theme" aria-label="Toggle theme">Moon</button>
+      </div>
+    </footer>
+  </aside>
 
-        async function fetchMessages() {
-            try {
-                const res = await fetch('/messages');
-                const messages = await res.json();
-                const box = document.getElementById('chat-box');
-                box.innerHTML = messages.map(m =>
-                    `<div class="msg"><strong>${m.user}</strong><br>${m.message}<span class="timestamp">${m.time}</span></div>`
-                ).join('');
-            } catch (err) {
-                console.error('Error fetching messages:', err);
-            }
-        }
+  <main id="chat-main">
+    <header class="chat-header">
+      <button id="mobile-menu-btn" class="icon-btn mobile-only" aria-label="Open channel list">Menu</button>
+      <div class="room-info">
+        <h1 id="topbar-room">General</h1>
+        <span id="topbar-desc" class="room-desc">General conversation</span>
+      </div>
+      <div class="header-actions">
+        <div id="connection-status" class="connected" title="Connected" aria-label="Connection status"></div>
+        <button id="users-toggle-btn" class="icon-btn" title="Toggle members" aria-label="Toggle members panel">Users</button>
+      </div>
+    </header>
 
-        document.getElementById('chat-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
+    <div class="chat-stage">
+      <div class="chat-surface">
+        <div class="chat-surface-header">
+          <div class="surface-pill">Live room</div>
+          <div class="surface-meta">Fast, local, and shared with everyone currently connected</div>
+        </div>
 
-            const user = userInput.value.trim();
-            const message = document.getElementById('message').value.trim();
-            if (!user || !message) return;
+        <div id="loading-more" class="loading-spinner" style="display:none;" aria-live="polite">Loading older messages...</div>
 
-            if (!localStorage.getItem('chatUser')) {
-                localStorage.setItem('chatUser', user);
-                userInput.disabled = true;
-            }
+        <div id="messages-area" role="log" aria-live="polite" aria-label="Messages"></div>
 
-            const formData = new FormData();
-            formData.append('user', user);
-            formData.append('message', message);
+        <div id="typing-indicator" aria-live="polite" aria-atomic="true"></div>
 
-            try {
-                await fetch('/send', {
-                    method: 'POST',
-                    body: formData
-                });
-                document.getElementById('message').value = '';
-                fetchMessages();
-            } catch (err) {
-                console.error('Error sending message:', err);
-            }
-        });
+        <div id="toast-container" aria-live="assertive"></div>
 
-        setInterval(fetchMessages, 1000);
-        fetchMessages();
-    </script>
+        <div class="chat-input-wrapper">
+          <div id="emoji-tray" class="emoji-tray" hidden aria-label="Emoji picker">
+            {% for e in ['😀','😂','😍','🤔','👍','👏','🔥','❤️','🎉','💯'] %}
+            <button class="emoji-btn" data-emoji="{{ e }}" aria-label="{{ e }}">{{ e }}</button>
+            {% endfor %}
+          </div>
+          <div class="input-container">
+            <button id="attach-btn" class="input-action-btn" title="Attach file" aria-label="Attach file">Attach</button>
+            <textarea id="msg-input" placeholder="Message..." rows="1" aria-label="Message input" autocomplete="off"></textarea>
+            <button id="emoji-btn" class="input-action-btn" title="Insert emoji" aria-label="Insert emoji">Emoji</button>
+            <button id="send-btn" class="send-btn" aria-label="Send message">Send</button>
+          </div>
+        </div>
+        <input type="file" id="file-input" hidden accept="image/*,.pdf,.txt,.zip">
+      </div>
+    </div>
+  </main>
+
+  <aside id="users-sidebar" aria-label="Online members">
+    <header class="sidebar-header">
+      <div class="members-header">
+        <span class="section-title sidebar-section-inline">Online</span>
+        <span class="member-count"><span id="online-count">0</span> active</span>
+      </div>
+    </header>
+    <div id="users-list" class="users-list" role="list"></div>
+  </aside>
+</div>
+
+<div id="lightbox" class="lightbox-overlay" role="dialog" aria-modal="true" aria-label="Image viewer">
+  <img id="lightbox-img" src="" alt="Full size image">
+</div>
+
+<script src="https://unpkg.com/socket.io-client@4.7.5/dist/socket.io.min.js"></script>
+<script src="/static/js/main.js"></script>
 </body>
 </html>
