@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function initTheme() {
   const saved = localStorage.getItem('lc_theme') || 'dark';
   document.documentElement.setAttribute('data-theme', saved);
-  themeToggle.textContent = saved === 'dark' ? 'Sun' : 'Moon';
+  themeToggle.textContent = saved === 'dark' ? '☀️' : '🌙';
 }
 
 function checkAuth() {
@@ -220,7 +220,7 @@ async function loadMessages(room, beforeId = null) {
 
 function buildMessageNode(msg, isOwn) {
   const div = document.createElement('div');
-  div.className = 'msg-group';
+  div.className = `msg-group ${isOwn ? 'mine' : ''}`;
   div.dataset.id = msg.id;
 
   const color = getUserColor(msg.user);
@@ -518,7 +518,7 @@ function toggleTheme() {
   const next = cur === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem('lc_theme', next);
-  themeToggle.textContent = next === 'dark' ? 'Sun' : 'Moon';
+  themeToggle.textContent = next === 'dark' ? '☀️' : '🌙';
 }
 
 function scrollToBottom(smooth = true) {
