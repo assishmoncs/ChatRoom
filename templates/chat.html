@@ -56,21 +56,21 @@
           <div id="user-name" class="username">Guest</div>
           <div class="status online">Online now</div>
         </div>
-        <button id="theme-toggle" class="icon-btn" title="Toggle theme" aria-label="Toggle theme">Moon</button>
+        <button id="theme-toggle" class="icon-btn icon-only" title="Toggle theme" aria-label="Toggle theme"><span aria-hidden="true">🌙</span></button>
       </div>
     </footer>
   </aside>
 
   <main id="chat-main">
     <header class="chat-header">
-      <button id="mobile-menu-btn" class="icon-btn mobile-only" aria-label="Open channel list">Menu</button>
+      <button id="mobile-menu-btn" class="icon-btn icon-only mobile-only" aria-label="Open channel list"><span aria-hidden="true">☰</span></button>
       <div class="room-info">
         <h1 id="topbar-room">General</h1>
         <span id="topbar-desc" class="room-desc">General conversation</span>
       </div>
       <div class="header-actions">
         <div id="connection-status" class="connected" title="Connected" aria-label="Connection status"></div>
-        <button id="users-toggle-btn" class="icon-btn" title="Toggle members" aria-label="Toggle members panel">Users</button>
+        <button id="users-toggle-btn" class="icon-btn" title="Toggle members" aria-label="Toggle members panel">Members</button>
       </div>
     </header>
 
@@ -96,9 +96,9 @@
             {% endfor %}
           </div>
           <div class="input-container">
-            <button id="attach-btn" class="input-action-btn" title="Attach file" aria-label="Attach file">Attach</button>
+            <button id="attach-btn" class="input-action-btn icon-only" title="Attach file" aria-label="Attach file"><span aria-hidden="true">📎</span></button>
             <textarea id="msg-input" placeholder="Message..." rows="1" aria-label="Message input" autocomplete="off"></textarea>
-            <button id="emoji-btn" class="input-action-btn" title="Insert emoji" aria-label="Insert emoji">Emoji</button>
+            <button id="emoji-btn" class="input-action-btn icon-only" title="Insert emoji" aria-label="Insert emoji"><span aria-hidden="true">😊</span></button>
             <button id="send-btn" class="send-btn" aria-label="Send message">Send</button>
           </div>
         </div>
