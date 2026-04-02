@@ -1,6 +1,6 @@
 # 🚀 ChatRoom — Enhanced LAN Multi-room Chat
 
-A clean, Discord-style local network chat built with **Flask + Flask-SocketIO + SQLite**.
+A clean local network chat built with **Flask + Flask-SocketIO + SQLite**.
 No database server, no accounts, no cloud — just Python + a browser.
 
 ## ✨ Features (Original + Improvements)

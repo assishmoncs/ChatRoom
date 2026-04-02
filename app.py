@@ -22,7 +22,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(DB_DIR, exist_ok=True)
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'lanchat-dev-secret-2025')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'chatroom-dev-secret-2025')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
 
@@ -220,5 +220,5 @@ def on_stop_typing(data):
 
 
 if __name__ == '__main__':
-    print('\n  lanChat running at http://localhost:5000\n')
+    print('\n  ChatRoom running at http://localhost:5000\n')
     socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)

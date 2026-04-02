@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="lanChat - fast, real-time LAN messaging for your local network.">
-  <title>lanChat</title>
+  <meta name="description" content="ChatRoom - fast, real-time LAN messaging for your local network.">
+  <title>ChatRoom</title>
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
@@ -12,7 +12,7 @@
   <div class="modal-content">
     <div class="modal-header">
       <span class="modal-icon" aria-hidden="true">LC</span>
-      <h2 id="modal-title">Welcome to lanChat</h2>
+      <h2 id="modal-title">Welcome to ChatRoom</h2>
     </div>
     <p>Choose a display name to start chatting on your local network.</p>
     <input id="name-input" type="text" placeholder="Your username..." maxlength="32" autocomplete="off" spellcheck="false">
@@ -29,7 +29,7 @@
       <div class="brand-block">
         <div class="brand-mark" aria-hidden="true">LC</div>
         <div class="brand-copy">
-          <span class="logo">lanChat</span>
+          <span class="logo">ChatRoom</span>
           <p class="brand-subtitle">Private messaging for your local network</p>
         </div>
       </div>
@@ -90,15 +90,9 @@
         <div id="toast-container" aria-live="assertive"></div>
 
         <div class="chat-input-wrapper">
-          <div id="emoji-tray" class="emoji-tray" hidden aria-label="Emoji picker">
-            {% for e in ['😀','😂','😍','🤔','👍','👏','🔥','❤️','🎉','💯'] %}
-            <button class="emoji-btn" data-emoji="{{ e }}" aria-label="{{ e }}">{{ e }}</button>
-            {% endfor %}
-          </div>
           <div class="input-container">
             <button id="attach-btn" class="input-action-btn icon-only" title="Attach file" aria-label="Attach file"><span aria-hidden="true">📎</span></button>
-            <textarea id="msg-input" placeholder="Message..." rows="1" aria-label="Message input" autocomplete="off"></textarea>
-            <button id="emoji-btn" class="input-action-btn icon-only" title="Insert emoji" aria-label="Insert emoji"><span aria-hidden="true">😊</span></button>
+            <textarea id="msg-input" placeholder="Message... (paste GIF or sticker link)" rows="1" aria-label="Message input" autocomplete="off"></textarea>
             <button id="send-btn" class="send-btn" aria-label="Send message">Send</button>
           </div>
         </div>

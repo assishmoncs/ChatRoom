@@ -1,5 +1,5 @@
 /**
- * lanChat - Frontend Logic
+ * ChatRoom - Frontend Logic
  */
 'use strict';
 
@@ -36,8 +36,6 @@ const typingEl = $('typing-indicator');
 const usersList = $('users-list');
 const onlineCount = $('online-count');
 const themeToggle = $('theme-toggle');
-const emojiBtn = $('emoji-btn');
-const emojiTray = $('emoji-tray');
 const attachBtn = $('attach-btn');
 const fileInput = $('file-input');
 const lightbox = $('lightbox');
@@ -211,7 +209,7 @@ async function loadMessages(room, beforeId = null) {
       msgArea.appendChild(fragment);
     }
 
-    if (!beforeId) scrollToBottom(false);
+    if (!beforeId) scrollToBottom(true);
   } catch (err) {
     console.error('Failed to load messages:', err);
     showToast(`Failed to load messages: ${err.message}`, 'error');
@@ -231,7 +229,7 @@ function buildMessageNode(msg, isOwn) {
         <span class="msg-username" style="color: ${color}">${msg.user}</span>
         <span class="msg-time">${msg.time}</span>
       </div>
-      <div class="msg-text">${escapeHTML(msg.text)}</div>
+      <div class="msg-text">${renderMessageBody(msg.text)}</div>
       ${msg.file_url ? renderFile(msg.file_url, msg.file_name) : ''}
       <div class="msg-reactions"></div>
     </div>
@@ -255,6 +253,108 @@ function renderFile(url, name) {
     return `<div class="msg-file"><img src="${url}" alt="${name}" onclick="viewImage('${url}')"></div>`;
   }
   return `<div class="msg-file"><a href="${url}" class="file-link" target="_blank" rel="noopener noreferrer">File ${escapeHTML(name)}</a></div>`;
+}
+
+function renderMessageBody(rawText = '') {
+  const text = String(rawText || '').trim();
+  if (!text) return '';
+
+  const media = parseKeyboardMedia(text);
+  if (!media) {
+    return renderTextWithLinks(text);
+  }
+
+  const captionHtml = media.caption
+    ? `<div class="msg-caption">${renderTextWithLinks(media.caption)}</div>`
+    : '';
+
+  if (media.isVideo) {
+    return `
+      ${captionHtml}
+      <video class="msg-inline-media ${media.kind}" src="${media.url}" autoplay loop muted playsinline></video>
+    `;
+  }
+
+  const alt = media.kind === 'sticker' ? 'Sticker' : 'GIF';
+  return `
+    ${captionHtml}
+    <img class="msg-inline-media ${media.kind}" src="${media.url}" alt="${alt}" loading="lazy" decoding="async" onclick="viewImage('${media.url}')">
+  `;
+}
+
+function parseKeyboardMedia(text) {
+  const urlRegex = /(https?:\/\/[^\s<>"']+)/gi;
+  const matches = Array.from(text.matchAll(urlRegex));
+
+  for (const match of matches) {
+    const original = match[0];
+    const cleaned = stripTrailingPunctuation(original);
+    const safeUrl = toSafeHttpUrl(cleaned);
+    if (!safeUrl || !isSupportedMediaUrl(safeUrl)) continue;
+
+    const caption = text.replace(original, '').trim();
+    const kind = detectMediaKind(safeUrl);
+    const isVideo = /\.(mp4|webm)$/i.test(safeUrl);
+
+    return { url: safeUrl, caption, kind, isVideo };
+  }
+
+  return null;
+}
+
+function detectMediaKind(url) {
+  const lower = url.toLowerCase();
+  const stickerHint = /sticker/.test(lower);
+  const stickerExt = /\.(webp|png)$/i.test(lower);
+  return stickerHint || stickerExt ? 'sticker' : 'gif';
+}
+
+function isSupportedMediaUrl(url) {
+  const lower = url.toLowerCase();
+  if (/\.(gif|webp|png|jpe?g|mp4|webm)(\?|#|$)/i.test(lower)) return true;
+  return /media\.tenor\.com|media\d?\.giphy\.com|i\.giphy\.com/.test(lower);
+}
+
+function renderTextWithLinks(text = '') {
+  const urlRegex = /(https?:\/\/[^\s<>"']+)/gi;
+  let out = '';
+  let cursor = 0;
+
+  for (const match of text.matchAll(urlRegex)) {
+    const start = match.index || 0;
+    const raw = match[0];
+    const cleaned = stripTrailingPunctuation(raw);
+    const safe = toSafeHttpUrl(cleaned);
+
+    out += escapeHTML(text.slice(cursor, start));
+
+    if (safe) {
+      out += `<a class="msg-link" href="${safe}" target="_blank" rel="noopener noreferrer">${escapeHTML(cleaned)}</a>`;
+      const trailing = raw.slice(cleaned.length);
+      if (trailing) out += escapeHTML(trailing);
+    } else {
+      out += escapeHTML(raw);
+    }
+
+    cursor = start + raw.length;
+  }
+
+  out += escapeHTML(text.slice(cursor));
+  return out;
+}
+
+function stripTrailingPunctuation(url = '') {
+  return url.replace(/[),.!?]+$/g, '');
+}
+
+function toSafeHttpUrl(url) {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
+    return parsed.toString();
+  } catch {
+    return null;
+  }
 }
 
 function renderReactions(container, msgId, reactions) {
@@ -375,25 +475,6 @@ function setupEventListeners() {
 
   attachBtn.onclick = () => fileInput.click();
   fileInput.onchange = handleFileUpload;
-
-  emojiBtn.onclick = (e) => {
-    e.stopPropagation();
-    emojiTray.hidden = !emojiTray.hidden;
-  };
-
-  $all('.emoji-btn').forEach((btn) => {
-    btn.onclick = () => {
-      msgInput.value += btn.dataset.emoji;
-      msgInput.focus();
-      emojiTray.hidden = true;
-    };
-  });
-
-  document.addEventListener('click', (e) => {
-    if (!emojiTray.contains(e.target) && e.target !== emojiBtn) {
-      emojiTray.hidden = true;
-    }
-  });
 
   mobileSidebarBackdrop.onclick = closeSidebars;
   window.addEventListener('resize', handleViewportChange);
