@@ -71,9 +71,17 @@ function checkAuth() {
     enterChat();
   } else {
     nameModal.style.display = 'flex';
+    if (!nameInput.value.trim()) {
+      nameInput.value = generateDefaultUsername();
+    }
     nameInput.focus();
     nameInput.select();
   }
+}
+
+function generateDefaultUsername() {
+  const n = Math.floor(Math.random() * 9000) + 1000;
+  return `Guest${n}`;
 }
 
 function enterChat() {
@@ -443,7 +451,12 @@ function showReactionPicker(msgId, btn) {
 
 function setupEventListeners() {
   nameSubmit.onclick = handleNameSubmit;
-  nameInput.onkeydown = (e) => e.key === 'Enter' && handleNameSubmit();
+  nameInput.onkeydown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleNameSubmit();
+    }
+  };
 
   sendBtn.onclick = sendMessage;
   msgInput.onkeydown = (e) => {
